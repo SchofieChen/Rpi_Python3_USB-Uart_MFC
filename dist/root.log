@@ -1,0 +1,15 @@
+2019-09-18 09:27:22,725 - ERROR -root : read config fail
+2019-09-18 09:27:22,727 - INFO -root : Start Optical Sensor
+2019-09-18 09:27:22,728 - ERROR -root : failed to start Modbus Server
+2019-09-18 09:27:22,850 - ERROR -root : set value failed
+2019-09-18 09:27:23,093 - ERROR -root : set value failed
+2019-09-18 09:27:23,338 - ERROR -root : set value failed
+2019-09-18 09:27:23,582 - ERROR -root : set value failed
+2019-09-18 09:27:23,827 - ERROR -root : set value failed
+2019-09-18 09:27:24,071 - ERROR -root : set value failed
+2019-09-18 09:27:24,315 - ERROR -root : set value failed
+2019-09-18 09:27:24,560 - ERROR -root : set value failed
+2019-09-18 09:27:53,030 - INFO -root : Start Optical Sensor
+2019-09-18 09:27:53,032 - INFO -root : Start Modbus Server
+2019-09-18 09:32:41,459 - INFO -root : Start Optical Sensor
+2019-09-18 09:32:41,480 - INFO -root : Start Modbus Server
