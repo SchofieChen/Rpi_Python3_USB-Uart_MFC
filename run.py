@@ -1,5 +1,6 @@
 import serial
 import time
+##load sensor parameter
 import sensorProperty
 import sys
 import threading
@@ -7,9 +8,10 @@ import SensorMdbsServer
 from log import MyLog
 import configparser
 import asyncio
+import os
+import multiprocessing as mp
 
-
-ser = serial.Serial("/dev/ttyUSB0", 9600, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE,timeout=0.3)
+ser = serial.Serial("/dev/ttyUSB0", 9600, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE,timeout=0.1)
 #ser = serial.Serial("/dev/ttyAMA0", 9600, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE) #for pin out (PIN_8, PIN_10)        
 currentCMD = b'\x0207RFD\x0d'
 
@@ -26,7 +28,20 @@ NumberOfMFC = {"01":b'\x0201RFD\x0d',
                "11":b'\x0211RFD\x0d',
                "12":b'\x0212RFD\x0d',
                "13":b'\x0213RFD\x0d',}
+class PurgeLog():
+    def __init__(self,):
+        pass
 
+    def purgeData(self,):
+        while True:
+            log = os.stat('root.log')
+            logSize = log.st_size/pow(1024,2)
+            print(logSize)      
+            if(logSize > 1):               
+                with open('root.log','r+') as f:
+                    f.truncate()
+            time.sleep(1)
+             
 class deMFCSensorConstructor():
      def __init__(self,):
         self._sensorValue = 0
@@ -45,7 +60,8 @@ class deMFCSensorConstructor():
         try:            
             sensorInstance.slaveID = int(currentMappingID)                      
             sensorInstance.Pressure = self._sensorValue
-            print('response from %s'%sensorInstance.slaveID )
+            #print('response from %s'%sensorInstance.slaveID )
+            #print('Pressure is : %s'%sensorInstance.Pressure) 
             self._setMbusArray2Slave(PressureSlave,sensorInstance.slaveID,sensorInstance.Pressure)
         except:
             mylog.error("error when _giveValue")
@@ -74,6 +90,7 @@ def main():
                 
                 try:
                     ser.write(currentCMD)
+                    print(currentCMD)
                 except:
                     ser.close()
                     mylog.error("Error occured when sent RS485 message")
@@ -103,6 +120,9 @@ def main():
         
 if __name__ == '__main__':
     mylog = MyLog()
+    '''
+    Start initialize MFC Pressure
+    '''
     try:
         config = configparser.ConfigParser()
         config.read('Config.ini')
@@ -110,7 +130,9 @@ if __name__ == '__main__':
         print(ip)
     except:
         mylog.error("read config fail")
-        
+    '''
+    Start Collect MFC Pressure
+    '''
     try:
         sensorInstance = sensorProperty.sensorPropertyInstance() #just one instance bcz sync running 
         MFCSensorCollectionThread = threading.Thread(target = main)
@@ -120,6 +142,9 @@ if __name__ == '__main__':
         if ser != None:
             mylog.error("Uart fail")
             ser.close()
+    '''
+    Start Modbus Server
+    '''
     try:
         #hostname="127.0.0.1"
         hostname=ip
@@ -132,4 +157,20 @@ if __name__ == '__main__':
         mylog.info("Start Modbus Server")
     except:
         mylog.error("failed to start Modbus Server")
+    '''
+    Start check & purge log Mechanism
+    '''
+    try:
+        pgLog = PurgeLog()
+        pgThread = mp.Process(target = pgLog.purgeData)
+        pgThread.start()
+    except Exception as e:
+        print(e)
+        
+        
+    
+    
+    
+    
+    
         
