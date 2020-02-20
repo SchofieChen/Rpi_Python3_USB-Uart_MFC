@@ -15,19 +15,19 @@ ser = serial.Serial("/dev/ttyUSB0", 9600, serial.EIGHTBITS, serial.PARITY_NONE, 
 #ser = serial.Serial("/dev/ttyAMA0", 9600, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE) #for pin out (PIN_8, PIN_10)        
 currentCMD = b'\x0207RFD\x0d'
 
-NumberOfMFC = {"01":b'\x0201RFD\x0d',
-               "02":b'\x0202RFD\x0d',
-               "03":b'\x0203RFD\x0d',
-               "04":b'\x0204RFD\x0d',
-               "05":b'\x0205RFD\x0d',
-               "06":b'\x0206RFD\x0d',
-               "07":b'\x0207RFD\x0d',
-               "08":b'\x0208RFD\x0d',
-               "09":b'\x0209RFD\x0d',
-               "10":b'\x0210RFD\x0d',
-               "11":b'\x0211RFD\x0d',
-               "12":b'\x0212RFD\x0d',
-               "13":b'\x0213RFD\x0d',}
+NumberOfMFC = {"01":b'\x0201RPO\x0d',
+               "02":b'\x0202RPO\x0d',
+               "03":b'\x0203RPO\x0d',
+               "04":b'\x0204RPO\x0d',
+               "05":b'\x0205RPO\x0d',
+               "06":b'\x0206RPO\x0d',
+               "07":b'\x0207RPO\x0d',
+               "08":b'\x0208RPO\x0d',
+               "09":b'\x0209RPO\x0d',
+               "10":b'\x0210RPO\x0d',
+               "11":b'\x0211RPO\x0d',
+               "12":b'\x0212RPO\x0d',
+               "13":b'\x0213RPO\x0d',}
 class PurgeLog():
     def __init__(self,):
         pass
