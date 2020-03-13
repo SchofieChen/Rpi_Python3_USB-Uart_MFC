@@ -11,9 +11,9 @@ import asyncio
 import os
 import multiprocessing as mp
 
-ser = serial.Serial("/dev/ttyUSB0", 9600, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE,timeout=0.1)
-#ser = serial.Serial("/dev/ttyAMA0", 9600, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE) #for pin out (PIN_8, PIN_10)        
-currentCMD = b'\x0207RFD\x0d'
+
+ser = serial.Serial("/dev/ttyUSB0", 115200, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE, timeout = 0.1) #for pin out (PIN_8, PIN_10)        
+currentCMD = b'\x0207RTG\x0d'
 
 NumberOfMFC = {"01":b'\x0201RPO\x0d',
                "02":b'\x0202RPO\x0d',
@@ -28,6 +28,9 @@ NumberOfMFC = {"01":b'\x0201RPO\x0d',
                "11":b'\x0211RPO\x0d',
                "12":b'\x0212RPO\x0d',
                "13":b'\x0213RPO\x0d',}
+
+list = ["01","02","03","04","05","06","07"
+        ,"08","09","10","11","12","13",]
 class PurgeLog():
     def __init__(self,):
         pass
@@ -60,8 +63,8 @@ class deMFCSensorConstructor():
         try:            
             sensorInstance.slaveID = int(currentMappingID)                      
             sensorInstance.Pressure = self._sensorValue
-            #print('response from %s'%sensorInstance.slaveID )
-            #print('Pressure is : %s'%sensorInstance.Pressure) 
+            print('response from %s'%sensorInstance.slaveID )
+            print('Pressure is : %s'%sensorInstance.Pressure) 
             self._setMbusArray2Slave(PressureSlave,sensorInstance.slaveID,sensorInstance.Pressure)
         except:
             mylog.error("error when _giveValue")
@@ -83,19 +86,20 @@ def main():
     dMSC = deMFCSensorConstructor()
     readcount = 10
     try:
-        while(1):
-            for Dickey in NumberOfMFC:
+        while(1): 
+
+            for Dickey in list:
                 currentCMD = NumberOfMFC[Dickey]
-                #print(Dickey)
-                
+                #print(currentCMD)
+
                 try:
                     ser.write(currentCMD)
-                    print(currentCMD)
+                    time.sleep(0.01)
+                    #print(currentCMD)
                 except:
                     ser.close()
                     mylog.error("Error occured when sent RS485 message")
                       
-                #time.sleep(0.1)
                 #-------------------------------- wait response -----------------------------
                 try:
                     recv = ser.read(readcount)#the format is like b'N0' or b'NA'                 
@@ -103,13 +107,13 @@ def main():
                     recv = recv.split('N')[1].split('\r')[0] #First split to be N0 or NA /**/ 
                                                                 #Second split to be 0 or A
                     #print(NumberOfMFC[Dickey])  # Currend Command to which No. device
-                    print(recv)                 # deconstruct receive data
+                    #print(recv)                 # deconstruct receive data
                 
                     dMSC.switchIdentifyNumberAndSetResult(recv,Dickey)
                         
                 except:               
                     #ser.close()
-                    mylog.error("Error occured when recive data current command is :%s" %(currentCMD))
+                    #mylog.error("Error occured when recive data current command is :%s" %(currentCMD))
                     recv = 999
                     dMSC.switchIdentifyNumberAndSetResult(recv,Dickey)                   
                 #-------------------------------- response done -----------------------------
@@ -120,6 +124,7 @@ def main():
         
 if __name__ == '__main__':
     mylog = MyLog()
+
     '''
     Start initialize MFC Pressure
     '''
@@ -130,18 +135,6 @@ if __name__ == '__main__':
         print(ip)
     except:
         mylog.error("read config fail")
-    '''
-    Start Collect MFC Pressure
-    '''
-    try:
-        sensorInstance = sensorProperty.sensorPropertyInstance() #just one instance bcz sync running 
-        MFCSensorCollectionThread = threading.Thread(target = main)
-        MFCSensorCollectionThread.start()
-        mylog.info("Start MFC-HG200 Sensor")
-    except KeyboardInterrupt:
-        if ser != None:
-            mylog.error("Uart fail")
-            ser.close()
     '''
     Start Modbus Server
     '''
@@ -158,12 +151,26 @@ if __name__ == '__main__':
     except:
         mylog.error("failed to start Modbus Server")
     '''
+    Start Collect MFC Pressure
+    '''
+    try:
+        sensorInstance = sensorProperty.sensorPropertyInstance() #just one instance bcz sync running 
+        MFCSensorCollectionThread = threading.Thread(target = main)
+        MFCSensorCollectionThread.start()
+        mylog.info("Start MFC-HG200 Sensor")
+    except KeyboardInterrupt:
+        if ser != None:
+            mylog.error("Uart fail")
+            ser.close()
+
+  
+    '''
     Start check & purge log Mechanism
     '''
     try:
         pgLog = PurgeLog()
         pgThread = mp.Process(target = pgLog.purgeData)
-        pgThread.start()
+       # pgThread.start()
     except Exception as e:
         print(e)
         
