@@ -12,7 +12,7 @@ import os
 import multiprocessing as mp
 
 
-ser = serial.Serial("/dev/ttyUSB0", 115200, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE, timeout = 0.1) #for pin out (PIN_8, PIN_10)        
+
 currentCMD = b'\x0207RTG\x0d'
 
 NumberOfMFC = {"01":b'\x0201RPO\x0d',
@@ -125,6 +125,13 @@ def main():
 if __name__ == '__main__':
     mylog = MyLog()
 
+    try:
+        ser = serial.Serial("/dev/ttyUSB0", 115200, serial.EIGHTBITS, serial.PARITY_NONE,
+                        serial.STOPBITS_ONE, timeout = 0.1) #for pin out (PIN_8, PIN_10)
+        print(ser)
+    except:
+        ser = serial.Serial("/dev/ttyUSB1", 115200, serial.EIGHTBITS, serial.PARITY_NONE,
+                        serial.STOPBITS_ONE, timeout = 0.1) #for pin out (PIN_8, PIN_10)
     '''
     Start initialize MFC Pressure
     '''
